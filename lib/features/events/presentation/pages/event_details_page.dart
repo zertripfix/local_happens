@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -436,14 +437,18 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                 icon: isFavorite ? Icons.favorite : Icons.favorite_border,
                 iconColor: isFavorite ? Colors.redAccent : Colors.black87,
                 onPressed: () {
-                  if (!isAuthenticated) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'Увійдіть, щоб мати можливість додавати в "Обране"',
+                  final user = FirebaseAuth.instance.currentUser;
+                  // через if (!isAuthenticated)... не працює після логауту
+                  if (user == null) {
+                    ScaffoldMessenger.of(context)
+                      ..clearSnackBars()
+                      ..showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Увійдіть, щоб мати можливість додавати в "Обране"',
+                          ),
                         ),
-                      ),
-                    );
+                      );
                     return;
                   }
                   context.read<FavoritesCubit>().toggleFavorite(widget.eventId);

@@ -16,7 +16,11 @@ class _EventsPageState extends State<EventsPage> {
   String _selectedCategory = 'Усі';
 
   final List<Map<String, dynamic>> _categories = [
-    {'name': 'Усі', 'icon': Icons.local_fire_department, 'color': Colors.orange},
+    {
+      'name': 'Усі',
+      'icon': Icons.local_fire_department,
+      'color': Colors.orange,
+    },
     {'name': 'Музика', 'icon': Icons.music_note, 'color': Colors.blue},
     {'name': 'Спорт', 'icon': Icons.bolt, 'color': Colors.amber},
     {'name': 'Їжа', 'icon': Icons.restaurant, 'color': Colors.red},
@@ -53,13 +57,10 @@ class _EventsPageState extends State<EventsPage> {
               ),
               const Text(
                 'Знаходь цікаве поруч',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey),
               ),
               const SizedBox(height: 24),
-              
+
               // Search Bar
               Row(
                 children: [
@@ -121,7 +122,9 @@ class _EventsPageState extends State<EventsPage> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
-                            color: isSelected ? Colors.black87 : Colors.grey[100],
+                            color: isSelected
+                                ? Colors.black87
+                                : Colors.grey[100],
                             borderRadius: BorderRadius.circular(25),
                           ),
                           child: Row(
@@ -129,13 +132,17 @@ class _EventsPageState extends State<EventsPage> {
                               Icon(
                                 category['icon'],
                                 size: 18,
-                                color: isSelected ? Colors.white : Colors.grey[600],
+                                color: isSelected
+                                    ? Colors.white
+                                    : Colors.grey[600],
                               ),
                               const SizedBox(width: 8),
                               Text(
                                 category['name'],
                                 style: TextStyle(
-                                  color: isSelected ? Colors.white : Colors.grey[800],
+                                  color: isSelected
+                                      ? Colors.white
+                                      : Colors.grey[800],
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -155,15 +162,17 @@ class _EventsPageState extends State<EventsPage> {
                   builder: (context, state) {
                     if (state is EventsLoading) {
                       return const Center(child: CircularProgressIndicator());
-                    } else if (state is EventsLoaded && state.events.isNotEmpty) {
+                    } else if (state is EventsLoaded &&
+                        state.events.isNotEmpty) {
                       return GridView.builder(
                         padding: const EdgeInsets.only(bottom: 20),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                          childAspectRatio: 0.75,
-                        ),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 16,
+                              mainAxisSpacing: 16,
+                              childAspectRatio: 0.75,
+                            ),
                         itemCount: state.events.length,
                         itemBuilder: (context, index) {
                           final eventUiModel = state.events[index];
@@ -185,4 +194,3 @@ class _EventsPageState extends State<EventsPage> {
     );
   }
 }
-

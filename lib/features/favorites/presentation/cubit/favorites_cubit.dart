@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:local_happens/core/usecases/usecase.dart';
+import 'package:local_happens/features/events/domain/entities/event.dart';
 import 'package:local_happens/features/favorites/domain/usecases/add_favorite.dart';
 import 'package:local_happens/features/favorites/domain/usecases/get_favorites.dart';
 import 'package:local_happens/features/favorites/domain/usecases/is_favorite.dart';
@@ -23,9 +24,10 @@ class FavoritesCubit extends Cubit<FavoritesState> {
     emit(FavoritesLoading());
     try {
       final favorites = await getFavoritesUseCase(NoParams());
+
       emit(
         FavoritesLoaded(
-          favorites: favorites,
+          favorites: List<Event>.from(favorites),
           favoriteIds: favorites.map((e) => e.id).toSet(),
         ),
       );
@@ -41,8 +43,6 @@ class FavoritesCubit extends Cubit<FavoritesState> {
   }
 
   Future<void> addFavoriteEvent(String eventId) async {
-    if (state is! FavoritesLoaded) return;
-
     final currentState = state as FavoritesLoaded;
 
     try {
@@ -111,7 +111,15 @@ class FavoritesCubit extends Cubit<FavoritesState> {
   }
 
   Future<void> toggleFavorite(String eventId) async {
-    final isFavorite = state.favoriteIds.contains(eventId);
+    if (state is! FavoritesLoaded) {
+      await loadFavorites();
+    }
+
+    if (state is! FavoritesLoaded) return;
+
+    final currentState = state as FavoritesLoaded;
+
+    final isFavorite = currentState.favoriteIds.contains(eventId);
 
     if (isFavorite) {
       await removeFavoriteEvent(eventId);
