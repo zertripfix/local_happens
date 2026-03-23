@@ -15,6 +15,7 @@ abstract class EventRemoteDatasource {
   Stream<List<EventModel>> getEventsStreamByStatus(EventStatus status);
   Future<void> updateEventStatus(String id, EventStatus status);
   Future<String> uploadImage(String filePath, String fileName);
+  Future<void> addUserToAttendees(String eventId, String userId);
 }
 
 class EventRemoteDatasourceImpl implements EventRemoteDatasource {
@@ -57,9 +58,7 @@ class EventRemoteDatasourceImpl implements EventRemoteDatasource {
         .collection('events')
         .where('category', isEqualTo: category)
         .get();
-    return snapshot.docs
-        .map((doc) => EventModel.fromFirestore(doc))
-        .toList();
+    return snapshot.docs.map((doc) => EventModel.fromFirestore(doc)).toList();
   }
 
   @override
@@ -103,9 +102,31 @@ class EventRemoteDatasourceImpl implements EventRemoteDatasource {
 
   @override
   Future<String> uploadImage(String filePath, String fileName) async {
-    final ref = FirebaseStorage.instance.ref().child('event_images').child(fileName);
+    final ref = FirebaseStorage.instance
+        .ref()
+        .child('event_images')
+        .child(fileName);
     final uploadTask = ref.putFile(File(filePath));
     final snapshot = await uploadTask;
     return await snapshot.ref.getDownloadURL();
+  }
+
+  @override
+  Future<void> addUserToAttendees(String eventId, String userId) async {
+    final eventRef = firestore.collection('events').doc(eventId);
+
+    // транзакція, щоб уникнути гонок (race condition) при паралельних кліках
+    await firestore.runTransaction((transaction) async {
+      final snapshot = await transaction.get(eventRef);
+      if (!snapshot.exists) return;
+
+      final currentAttendees = List<String>.from(
+        snapshot.get('attendeeIds') ?? [],
+      );
+      if (!currentAttendees.contains(userId)) {
+        currentAttendees.add(userId);
+        transaction.update(eventRef, {'attendeeIds': currentAttendees});
+      }
+    });
   }
 }

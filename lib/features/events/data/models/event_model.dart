@@ -17,7 +17,7 @@ class EventModel {
   final String userId;
   final EventStatus status;
   final String? externalUrl;
-  final int attendingCount;
+  final List<String> attendeeIds;
 
   const EventModel({
     required this.id,
@@ -33,7 +33,7 @@ class EventModel {
     required this.userId,
     required this.status,
     this.externalUrl,
-    this.attendingCount = 0,
+    required this.attendeeIds,
   });
 
   factory EventModel.fromEntity(Event event) {
@@ -51,7 +51,7 @@ class EventModel {
       userId: event.userId,
       status: event.status,
       externalUrl: event.externalUrl,
-      attendingCount: event.attendingCount,
+      attendeeIds: event.attendeeIds,
     );
   }
 
@@ -71,7 +71,7 @@ class EventModel {
       userId: data['createdBy'] as String,
       status: EventStatus.fromString(data['status'] as String),
       externalUrl: data['externalUrl'] as String?,
-      attendingCount: data['attendingCount'] as int? ?? 0,
+      attendeeIds: List<String>.from(data['attendeeIds'] ?? []),
     );
   }
 
@@ -89,7 +89,7 @@ class EventModel {
       'createdBy': userId,
       'status': status.name,
       'externalUrl': externalUrl,
-      'attendingCount': attendingCount,
+      'attendeeIds': attendeeIds,
     };
   }
 
@@ -108,7 +108,7 @@ class EventModel {
       userId: userId,
       status: status,
       externalUrl: externalUrl,
-      attendingCount: attendingCount,
+      attendeeIds: attendeeIds,
     );
   }
 }

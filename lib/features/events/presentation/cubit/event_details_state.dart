@@ -29,3 +29,11 @@ class EventDetailsError extends EventDetailsState {
   @override
   List<Object?> get props => [message];
 }
+
+// attendance
+class AttendanceMarked extends EventDetailsState {}
+
+class AttendanceError extends EventDetailsState {
+  final String message;
+  AttendanceError(this.message);
+}

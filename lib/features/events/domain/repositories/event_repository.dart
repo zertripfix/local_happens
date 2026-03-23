@@ -12,4 +12,6 @@ abstract class EventRepository {
   Stream<List<Event>> getEventsStreamByStatus(EventStatus status);
   Future<void> updateEventStatus(String id, EventStatus status);
   Future<String> uploadImage(String filePath, String fileName);
+  Future<void> addUserToAttendees(String eventId, String userId);
+  Future<void> removeUserFromAttendees(String eventId, String userId);
 }

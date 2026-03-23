@@ -11,11 +11,19 @@ class EventUiModel {
     required this.userName,
   });
 
-  factory EventUiModel.fromEvent(Event event, String cityName, String userName) {
+  factory EventUiModel.fromEvent(
+    Event event,
+    String cityName,
+    String userName,
+  ) {
+    return EventUiModel(event: event, cityName: cityName, userName: userName);
+  }
+
+  EventUiModel copyWith({Event? event, String? cityName, String? userName}) {
     return EventUiModel(
-      event: event,
-      cityName: cityName,
-      userName: userName,
+      event: event ?? this.event,
+      cityName: cityName ?? this.cityName,
+      userName: userName ?? this.userName,
     );
   }
 }

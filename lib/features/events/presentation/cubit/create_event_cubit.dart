@@ -66,6 +66,7 @@ class CreateEventCubit extends Cubit<CreateEventState> {
         imageUrl: imageUrl,
         userId: userId,
         status: EventStatus.pending,
+        attendeeIds: [],
       );
 
       await createEventUseCase(event);

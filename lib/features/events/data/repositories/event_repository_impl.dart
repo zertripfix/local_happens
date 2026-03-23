@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../domain/entities/event.dart';
 import '../../domain/entities/event_status.dart';
 import '../../domain/repositories/event_repository.dart';
@@ -6,8 +8,12 @@ import '../models/event_model.dart';
 
 class EventRepositoryImpl implements EventRepository {
   final EventRemoteDatasource remoteDatasource;
+  final FirebaseFirestore firestore;
 
-  EventRepositoryImpl({required this.remoteDatasource});
+  EventRepositoryImpl({
+    required this.remoteDatasource,
+    required this.firestore,
+  });
 
   @override
   Stream<List<Event>> getEventsStream() {
@@ -72,5 +78,19 @@ class EventRepositoryImpl implements EventRepository {
   @override
   Future<String> uploadImage(String filePath, String fileName) {
     return remoteDatasource.uploadImage(filePath, fileName);
+  }
+
+  @override
+  Future<void> addUserToAttendees(String eventId, String userId) async {
+    await firestore.collection('events').doc(eventId).update({
+      'attendeeIds': FieldValue.arrayUnion([userId]),
+    });
+  }
+
+  @override
+  Future<void> removeUserFromAttendees(String eventId, String userId) async {
+    await firestore.collection('events').doc(eventId).update({
+      'attendeeIds': FieldValue.arrayRemove([userId]),
+    });
   }
 }
