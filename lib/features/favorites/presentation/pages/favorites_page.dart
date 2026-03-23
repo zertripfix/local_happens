@@ -8,8 +8,22 @@ import 'package:local_happens/features/favorites/presentation/cubit/favorites_cu
 import 'package:local_happens/features/favorites/presentation/cubit/favorites_state.dart';
 import 'package:local_happens/features/events/presentation/widgets/event_card_widget.dart';
 
-class FavoritesPage extends StatelessWidget {
+class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
+
+  @override
+  State<FavoritesPage> createState() => _FavoritesPageState();
+}
+
+class _FavoritesPageState extends State<FavoritesPage> {
+  @override
+  void initState() {
+    super.initState();
+    final cubit = context.read<FavoritesCubit>();
+    if (cubit.state is! FavoritesLoaded) {
+      context.read<FavoritesCubit>().loadFavorites();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +54,7 @@ class FavoritesPage extends StatelessWidget {
                   : <String>{};
 
               // Loading
-              if (state is FavoritesLoading && favorites.isEmpty) {
+              if (state is FavoritesLoading || state is FavoritesInitial) {
                 return const Center(child: CircularProgressIndicator());
               }
 
