@@ -1,6 +1,9 @@
+import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:local_happens/core/constants/app_colors.dart';
+import 'package:local_happens/core/constants/app_text_styles.dart';
 import 'package:local_happens/features/events/domain/entities/event.dart';
 
 class EventCard extends StatelessWidget {
@@ -26,76 +29,96 @@ class EventCard extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: AppColors.background.withOpacity(0.5),
+            width: 1,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image Stack
-            Expanded(
+          AspectRatio(
+            aspectRatio: 160 / 178,
               child: Stack(
                 children: [
-                  // Event Image
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(16),
+                    ),
                     child: CachedNetworkImage(
                       imageUrl: event.imageUrl,
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
-                        color: Colors.grey[200],
-                        child: const Center(child: CircularProgressIndicator()),
+                        color: AppColors.secondaryBackground,
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
                       ),
                       errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[200],
+                        color: AppColors.secondaryBackground,
                         child: const Icon(Icons.image_not_supported),
                       ),
                     ),
                   ),
-                  // Category Tag
                   Positioned(
                     top: 12,
                     left: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.5),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _getCategoryIcon(event.category),
-                          const SizedBox(width: 4),
-                          Text(
-                            event.category,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.accent.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: AppColors.accent.withOpacity(0.2),
+                              width: 0.8,
                             ),
                           ),
-                        ],
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              _getCategoryIcon(event.category),
+                              const SizedBox(width: 4),
+                              Text(
+                                event.category,
+                                style: AppTextStyles.labelMedium.copyWith(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                  // Date Tag
                   Positioned(
                     bottom: 12,
                     left: 12,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(15),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -103,18 +126,11 @@ class EventCard extends StatelessWidget {
                         children: [
                           Text(
                             '${event.date.day} ${_getMonthName(event.date.month)}',
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: AppTextStyles.dateTitle,
                           ),
                           Text(
                             '${event.date.hour.toString().padLeft(2, '0')}:${event.date.minute.toString().padLeft(2, '0')}',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
-                            ),
+                            style: AppTextStyles.bodySmall,
                           ),
                         ],
                       ),
@@ -123,36 +139,35 @@ class EventCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Event Details
             Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    event.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                  SizedBox(
+                    height: 38,
+                    child: Text(
+                      event.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.titleSmall,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.location_on_outlined, size: 16, color: Colors.grey[400]),
+                      const Icon(
+                        Icons.location_on_outlined,
+                        size: 16,
+                        color: AppColors.mutedForeground,
+                      ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
                           event.locationAddress,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey[500],
-                          ),
+                          style: AppTextStyles.bodySmall,
                         ),
                       ),
                     ],

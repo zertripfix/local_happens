@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:local_happens/features/events/presentation/models/event_ui_model.dart';
+import 'package:local_happens/features/events/presentation/models/events_filter_model.dart';
+
 
 abstract class EventsState extends Equatable {
   const EventsState();
@@ -15,10 +17,25 @@ class EventsLoading extends EventsState {}
 class EventsLoaded extends EventsState {
   final List<EventUiModel> events;
 
-  const EventsLoaded(this.events);
+  final EventsFilterModel filters;
+
+  const EventsLoaded({
+    required this.events, 
+    this.filters = const EventsFilterModel(),
+    });
+
+    EventsLoaded copyWith({
+      List<EventUiModel>? events,
+      EventsFilterModel? filters,
+    }){
+      return EventsLoaded(
+        events: events ?? this.events,
+        filters: filters ?? this.filters,
+        );
+    }
 
   @override
-  List<Object?> get props => [events];
+  List<Object?> get props => [events, filters];
 }
 
 

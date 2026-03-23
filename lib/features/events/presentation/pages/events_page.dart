@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:local_happens/core/constants/app_colors.dart';
+import 'package:local_happens/core/constants/app_text_styles.dart';
 import 'package:local_happens/features/events/presentation/cubit/events_cubit.dart';
 import 'package:local_happens/features/events/presentation/cubit/events_state.dart';
+import 'package:local_happens/features/events/presentation/models/events_filter_model.dart';
 import 'package:local_happens/features/events/presentation/widgets/event_card_widget.dart';
+import 'package:local_happens/features/events/presentation/widgets/events_filter_sheet.dart';
 
 class EventsPage extends StatefulWidget {
   const EventsPage({super.key});
@@ -13,7 +17,6 @@ class EventsPage extends StatefulWidget {
 
 class _EventsPageState extends State<EventsPage> {
   final TextEditingController _searchController = TextEditingController();
-  String _selectedCategory = 'Усі';
 
   final List<Map<String, dynamic>> _categories = [
     {
@@ -35,128 +38,214 @@ class _EventsPageState extends State<EventsPage> {
     super.dispose();
   }
 
+  void _openFiltersSheet({
+    required EventsFilterModel currentFilters,
+    required List<String> availableCities,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      isDismissible: true,
+      enableDrag: true,
+      useSafeArea: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.78,
+          minChildSize: 0.55,
+          maxChildSize: 0.92,
+          expand: false,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColors.background,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24),
+                ),
+              ),
+              child: EventsFilterSheet(
+                initialFilters: currentFilters,
+                availableCities: availableCities,
+                scrollController: scrollController,
+                onApply: (filters) {
+                  context.read<EventsCubit>().applyFilters(filters);
+                  Navigator.pop(context);
+                },
+                onReset: () {
+                  _searchController.clear();
+                  context.read<EventsCubit>().resetFilters();
+                },
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 20),
-              // Header
+              SizedBox(height: isLandscape ? 20 : 56),
               const Text(
                 'LocalHappens',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+                style: AppTextStyles.headline,
               ),
+              const SizedBox(height: 2),
               const Text(
                 'Знаходь цікаве поруч',
-                style: TextStyle(fontSize: 16, color: Colors.grey),
+                style: AppTextStyles.value,
               ),
-              const SizedBox(height: 24),
-
-              // Search Bar
+              SizedBox(height: isLandscape ? 16 : 24),
               Row(
                 children: [
                   Expanded(
                     child: Container(
+                      height: 48,
                       decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(15),
+                        color: AppColors.secondaryBackground,
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: TextField(
                         controller: _searchController,
                         onChanged: (value) {
                           context.read<EventsCubit>().filterEvents(value);
                         },
-                        decoration: const InputDecoration(
+                        textAlignVertical: TextAlignVertical.center,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          color: AppColors.foreground,
+                          height: 1,
+                        ),
+                        decoration: InputDecoration(
                           hintText: 'Шукати події...',
-                          prefixIcon: Icon(Icons.search, color: Colors.grey),
+                          hintStyle:
+                              AppTextStyles.bodySmall.copyWith(height: 1),
+                          prefixIcon: const Icon(
+                            Icons.search,
+                            color: AppColors.mutedForeground,
+                            size: 22,
+                          ),
+                          prefixIconConstraints: const BoxConstraints(
+                            minWidth: 44,
+                            minHeight: 48,
+                          ),
+                          isDense: true,
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 15),
+                          contentPadding:
+                              const EdgeInsets.symmetric(vertical: 0),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: IconButton(
-                      onPressed: () {
-                        // Filter button action
-                      },
-                      icon: const Icon(Icons.tune, color: Colors.black87),
-                    ),
+                  const SizedBox(width: 8),
+                  BlocBuilder<EventsCubit, EventsState>(
+                    builder: (context, state) {
+                      final currentFilters = state is EventsLoaded
+                          ? state.filters
+                          : const EventsFilterModel();
+
+                      final availableCities =
+                          context.read<EventsCubit>().getAllCities();
+
+                      return Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: AppColors.secondaryBackground,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            _openFiltersSheet(
+                              currentFilters: currentFilters,
+                              availableCities: availableCities,
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.tune,
+                            color: AppColors.foreground,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: isLandscape ? 16 : 24),
+              BlocBuilder<EventsCubit, EventsState>(
+                builder: (context, state) {
+                  final selectedCategory = state is EventsLoaded
+                      ? state.filters.selectedCategory
+                      : 'Усі';
 
-              // Categories
-              SizedBox(
-                height: 45,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _categories.length,
-                  itemBuilder: (context, index) {
-                    final category = _categories[index];
-                    final isSelected = _selectedCategory == category['name'];
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 12.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedCategory = category['name'];
-                          });
-                          // Potentially filter by category in cubit
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? Colors.black87
-                                : Colors.grey[100],
-                            borderRadius: BorderRadius.circular(25),
+                  return SizedBox(
+                    height: 48,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _categories.length,
+                      itemBuilder: (context, index) {
+                        final category = _categories[index];
+                        final isSelected = selectedCategory == category['name'];
+
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            right: index == _categories.length - 1 ? 0 : 8,
                           ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                category['icon'],
-                                size: 18,
+                          child: GestureDetector(
+                            onTap: () {
+                              context.read<EventsCubit>().selectCategory(
+                                    category['name'],
+                                  );
+                            },
+                            child: Container(
+                              height: 48,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              decoration: BoxDecoration(
                                 color: isSelected
-                                    ? Colors.white
-                                    : Colors.grey[600],
+                                    ? AppColors.primary
+                                    : AppColors.secondaryBackground,
+                                borderRadius: BorderRadius.circular(100),
                               ),
-                              const SizedBox(width: 8),
-                              Text(
-                                category['name'],
-                                style: TextStyle(
-                                  color: isSelected
-                                      ? Colors.white
-                                      : Colors.grey[800],
-                                  fontWeight: FontWeight.w500,
-                                ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    category['icon'],
+                                    size: 18,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : AppColors.foreground,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    category['name'],
+                                    style: AppTextStyles.bodyMedium.copyWith(
+                                      color: isSelected
+                                          ? Colors.white
+                                          : AppColors.foreground,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
-              const SizedBox(height: 24),
-
-              // Events Grid
+              SizedBox(height: isLandscape ? 20 : 32),
               Expanded(
                 child: BlocBuilder<EventsCubit, EventsState>(
                   builder: (context, state) {
@@ -168,11 +257,11 @@ class _EventsPageState extends State<EventsPage> {
                         padding: const EdgeInsets.only(bottom: 20),
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 16,
-                              mainAxisSpacing: 16,
-                              childAspectRatio: 0.75,
-                            ),
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.56,
+                        ),
                         itemCount: state.events.length,
                         itemBuilder: (context, index) {
                           final eventUiModel = state.events[index];
@@ -180,9 +269,19 @@ class _EventsPageState extends State<EventsPage> {
                         },
                       );
                     } else if (state is EventsError) {
-                      return Center(child: Text(state.message));
+                      return Center(
+                        child: Text(
+                          state.message,
+                          style: AppTextStyles.bodyMedium,
+                        ),
+                      );
                     } else {
-                      return const Center(child: Text('Подій не знайдено'));
+                      return const Center(
+                        child: Text(
+                          'Подій не знайдено',
+                          style: AppTextStyles.bodyMedium,
+                        ),
+                      );
                     }
                   },
                 ),

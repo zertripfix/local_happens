@@ -114,7 +114,6 @@ Future<void> init() async {
       createEventUseCase: sl(),
       updateEventUseCase: sl(),
       deleteEventUseCase: sl(),
-      filterEventsUseCase: sl(),
     ),
   );
   sl.registerFactory(

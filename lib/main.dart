@@ -13,6 +13,7 @@ import 'features/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -49,7 +50,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // TODO: move EventsCubit, FavoritesCubit creation to app_router
         BlocProvider(
           create: (_) => di.sl<AuthCubit>()..listenAuthStateChanges(),
         ),
@@ -62,6 +62,7 @@ class MyApp extends StatelessWidget {
         title: 'Local Happens',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          textTheme: GoogleFonts.interTextTheme(),
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
           useMaterial3: true,
         ),

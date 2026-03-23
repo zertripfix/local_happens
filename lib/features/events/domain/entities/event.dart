@@ -7,7 +7,7 @@ class Event extends Equatable {
   final String description;
   final String category;
   final String cityId;
-  final DateTime date;
+  final DateTime date; 
   final String locationAddress;
   final double latitude;
   final double longitude;
