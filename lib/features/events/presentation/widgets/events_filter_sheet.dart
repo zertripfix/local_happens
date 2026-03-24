@@ -110,8 +110,8 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'Оберіть дату';
-    return '${date.day.toString().padLeft(2, '0')}.' 
-        '${date.month.toString().padLeft(2, '0')}.' 
+    return '${date.day.toString().padLeft(2, '0')}.'
+        '${date.month.toString().padLeft(2, '0')}.'
         '${date.year}';
   }
 
@@ -120,20 +120,16 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
 
   BoxDecoration _chipDecoration(bool isSelected) {
     return BoxDecoration(
-      color: isSelected 
-          ? AppColors.accent.withOpacity(0.1) 
+      color: isSelected
+          ? AppColors.accent.withOpacity(0.1)
           : AppColors.secondaryBackground,
       borderRadius: BorderRadius.circular(100),
       border: Border.all(
-        color: isSelected 
-            ? AppColors.accent.withOpacity(0.2) 
+        color: isSelected
+            ? AppColors.accent.withOpacity(0.2)
             : Colors.transparent,
       ),
     );
-  }
-
-  TextStyle _chipTextStyle(bool isSelected) {
-    return AppTextStyles.primary;
   }
 
   Widget _buildChip({
@@ -145,14 +141,14 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
         decoration: _chipDecoration(isSelected),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
               Icon(icon, size: 14, color: AppColors.foreground),
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
             ],
             Text(label, style: AppTextStyles.primary),
           ],
@@ -206,6 +202,19 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    final sortedCities = [
+      'Київ',
+      'Харків',
+      'Одеса',
+      'Львів',
+      'Вінниця',
+      'Дніпро',
+      'Кривий ріг',
+      'Запоріжжя',
+      'Миколаїв',
+      'Херсон',
+    ];
 
     return Padding(
       padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomInset),
@@ -293,7 +302,7 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: widget.availableCities.map((city) {
+              children: sortedCities.map((city) {
                 final isSelected = _localFilters.selectedCity == city;
 
                 return _buildChip(
