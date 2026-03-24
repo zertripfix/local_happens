@@ -47,9 +47,7 @@ class _ProfileActionCard extends StatelessWidget {
       height: 82,
       child: Card.filled(
         margin: EdgeInsets.zero,
-        color: Theme.of(
-          context,
-        ).colorScheme.surfaceContainerHighest.withAlpha(128),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           side: BorderSide(color: Theme.of(context).colorScheme.outline),

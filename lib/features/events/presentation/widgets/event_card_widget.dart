@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_happens/core/constants/app_colors.dart';
 import 'package:local_happens/core/constants/app_text_styles.dart';
-import 'package:local_happens/features/events/domain/entities/event.dart';
+import 'package:local_happens/features/events/presentation/models/event_ui_model.dart';
 
 class EventCard extends StatelessWidget {
   const EventCard({
     super.key,
-    required this.event,
+    required this.eventUiModel,
   });
 
-  final Event event;
+  final EventUiModel eventUiModel;
 
   String _getMonthName(int month) {
     const months = [
@@ -25,18 +25,18 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/events/${event.id}'),
+      onTap: () => context.push('/events/${eventUiModel.event.id}', extra: eventUiModel),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppColors.background.withOpacity(0.5),
+            color: AppColors.background.withValues(alpha: 0.5),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 16,
               offset: const Offset(0, 4),
             ),
@@ -54,7 +54,7 @@ class EventCard extends StatelessWidget {
                       top: Radius.circular(16),
                     ),
                     child: CachedNetworkImage(
-                      imageUrl: event.imageUrl,
+                      imageUrl: eventUiModel.event.imageUrl,
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,
@@ -83,20 +83,20 @@ class EventCard extends StatelessWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.accent.withOpacity(0.1),
+                            color: AppColors.accent.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: AppColors.accent.withOpacity(0.2),
+                              color: AppColors.accent.withValues(alpha: 0.2),
                               width: 0.8,
                             ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              _getCategoryIcon(event.category),
+                              _getCategoryIcon(eventUiModel.event.category),
                               const SizedBox(width: 4),
                               Text(
-                                event.category,
+                                eventUiModel.event.category,
                                 style: AppTextStyles.labelMedium.copyWith(
                                   color: Colors.white,
                                   fontSize: 12,
@@ -125,11 +125,11 @@ class EventCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${event.date.day} ${_getMonthName(event.date.month)}',
+                            '${eventUiModel.event.date.day} ${_getMonthName(eventUiModel.event.date.month)}',
                             style: AppTextStyles.dateTitle,
                           ),
                           Text(
-                            '${event.date.hour.toString().padLeft(2, '0')}:${event.date.minute.toString().padLeft(2, '0')}',
+                            '${eventUiModel.event.date.hour.toString().padLeft(2, '0')}:${eventUiModel.event.date.minute.toString().padLeft(2, '0')}',
                             style: AppTextStyles.bodySmall,
                           ),
                         ],
@@ -147,7 +147,7 @@ class EventCard extends StatelessWidget {
                   SizedBox(
                     height: 38,
                     child: Text(
-                      event.title,
+                      eventUiModel.event.title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyles.titleSmall,
@@ -164,7 +164,7 @@ class EventCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          event.locationAddress,
+                          eventUiModel.cityName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AppTextStyles.bodySmall,

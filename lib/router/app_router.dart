@@ -6,7 +6,8 @@ import 'package:local_happens/features/auth/domain/entities/user_role.dart';
 import 'package:local_happens/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:local_happens/features/auth/presentation/cubit/auth_state.dart';
 import 'package:local_happens/features/events/presentation/cubit/create_event_cubit.dart';
-import 'package:local_happens/features/events/presentation/cubit/events_cubit.dart';
+import 'package:local_happens/features/events/presentation/cubit/event_details_cubit.dart';
+import 'package:local_happens/features/events/presentation/models/event_ui_model.dart';
 import 'package:local_happens/features/events/presentation/pages/events_map_page.dart';
 import 'package:local_happens/features/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:local_happens/injection_container.dart';
@@ -41,17 +42,29 @@ class AppRouter {
           child: const CreateEventPage(),
         ),
       ),
-      StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) {
+      GoRoute(
+        path: '/events/:id',
+        builder: (context, state) {
           return MultiBlocProvider(
             providers: [
-              BlocProvider(
-                create: (_) => sl<EventsCubit>()..subscribeEvents(),
+              BlocProvider<EventDetailsCubit>(
+                create: (_) => sl<EventDetailsCubit>(),
               ),
-              BlocProvider(create: (_) => sl<FavoritesCubit>()),
+              BlocProvider<FavoritesCubit>(
+                create: (_) => sl<FavoritesCubit>(),
+              ),
             ],
-            child: MainNavigationPage(navigationShell: navigationShell),
+            child: () {
+              
+              final eventUiModel = state.extra as EventUiModel;
+              return EventDetailsPage(eventUiModel: eventUiModel);
+            }(),
           );
+        },
+      ),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainNavigationPage(navigationShell: navigationShell);
         },
         branches: [
           StatefulShellBranch(
@@ -59,13 +72,6 @@ class AppRouter {
               GoRoute(
                 path: '/events',
                 builder: (context, state) => const EventsPage(),
-                routes: [
-                  GoRoute(
-                    path: ':id',
-                    builder: (context, state) =>
-                        EventDetailsPage(eventId: state.pathParameters['id']!),
-                  ),
-                ],
               ),
             ],
           ),

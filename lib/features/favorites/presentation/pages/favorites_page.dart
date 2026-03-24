@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:local_happens/core/constants/app_text_styles.dart';
 import 'package:local_happens/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:local_happens/features/auth/presentation/cubit/auth_state.dart';
-import 'package:local_happens/features/events/domain/entities/event.dart';
+import 'package:local_happens/features/events/presentation/models/event_ui_model.dart';
 import 'package:local_happens/features/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:local_happens/features/favorites/presentation/cubit/favorites_state.dart';
 import 'package:local_happens/features/events/presentation/widgets/event_card_widget.dart';
@@ -77,7 +77,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
             builder: (context, state) {
               final favorites = state is FavoritesLoaded
                   ? state.favorites
-                  : <Event>[];
+                  : <EventUiModel>[];
               final favoriteIds = state is FavoritesLoaded
                   ? state.favoriteIds
                   : <String>{};
@@ -112,34 +112,37 @@ class _FavoritesPageState extends State<FavoritesPage> {
                     crossAxisCount: 2,
                     crossAxisSpacing: 16,
                     mainAxisSpacing: 16,
-                    childAspectRatio: 0.75,
+                    childAspectRatio: 0.58,
                   ),
                   itemCount: favorites.length,
                   itemBuilder: (context, index) {
-                    final event = favorites[index];
+                    final eventUiModel = favorites[index];
 
                     return Stack(
                       children: [
-                        Positioned.fill(child: EventCard(event: event)),
+                        Positioned.fill(
+                          child: EventCard(eventUiModel: eventUiModel),
+                        ),
                         Positioned(
                           top: 10,
                           right: 10,
                           child: Material(
-                            color: Colors.white.withOpacity(0.92),
+                            color: Colors.white.withValues(alpha: 0.92),
                             shape: const CircleBorder(),
                             child: IconButton(
                               tooltip: 'Видалити з обраного',
                               icon: Icon(
-                                favoriteIds.contains(event.id)
+                                favoriteIds.contains(eventUiModel.event.id)
                                     ? Icons.favorite
                                     : Icons.favorite_border,
-                                color: favoriteIds.contains(event.id)
+                                color:
+                                    favoriteIds.contains(eventUiModel.event.id)
                                     ? Colors.redAccent
                                     : Colors.black87,
                               ),
                               onPressed: () => context
                                   .read<FavoritesCubit>()
-                                  .removeFavoriteEvent(event.id),
+                                  .removeFavoriteEvent(eventUiModel.event.id),
                             ),
                           ),
                         ),

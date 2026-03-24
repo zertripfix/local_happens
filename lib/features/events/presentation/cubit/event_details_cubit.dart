@@ -22,24 +22,8 @@ class EventDetailsCubit extends Cubit<EventDetailsState> {
     required this.removeUserFromAttendeesUseCase,
   }) : super(EventDetailsInitial());
 
-  Future<void> loadEvent(String id) async {
-    emit(EventDetailsLoading());
-
-    try {
-      final event = await getEventByIdUseCase(id);
-
-      final cities = await getCitiesByIdsUseCase({event.cityId});
-      final users = await getUsersByIdsUseCase({event.userId});
-
-      final city = cities.first;
-      final user = users.first;
-
-      final uiModel = EventUiModel.fromEvent(event, city.name, user.name);
-
-      emit(EventDetailsLoaded(uiModel));
-    } catch (e) {
-      emit(EventDetailsError(e.toString()));
-    }
+  void setEvent(EventUiModel eventUiModel) {
+    emit(EventDetailsLoaded(eventUiModel));
   }
 
   Future<void> toggleAttendance(String eventId, String userId) async {

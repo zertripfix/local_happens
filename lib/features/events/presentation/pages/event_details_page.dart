@@ -20,9 +20,9 @@ import 'package:local_happens/features/events/presentation/models/event_ui_model
 import 'package:local_happens/injection_container.dart';
 
 class EventDetailsPage extends StatefulWidget {
-  final String eventId;
+  final EventUiModel eventUiModel;
 
-  const EventDetailsPage({super.key, required this.eventId});
+  const EventDetailsPage({super.key, required this.eventUiModel});
 
   @override
   State<EventDetailsPage> createState() => _EventDetailsPageState();
@@ -32,13 +32,15 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<FavoritesCubit>().checkIsFavorite(widget.eventId);
+    context.read<FavoritesCubit>().checkIsFavorite(
+      widget.eventUiModel.event.id,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => sl<EventDetailsCubit>()..loadEvent(widget.eventId),
+      create: (_) => sl<EventDetailsCubit>()..setEvent(widget.eventUiModel),
       child: Scaffold(
         backgroundColor: Colors.white,
         body: BlocBuilder<EventDetailsCubit, EventDetailsState>(
@@ -83,7 +85,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                       placeholder: (context, url) =>
                           Container(color: Colors.grey[200]),
                       errorWidget: (context, url, error) =>
-                          const Icon(Icons.error),
+                        const Icon(Icons.error),
                     ),
                     // Gradient overlay
                     Positioned.fill(
@@ -93,7 +95,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.black.withOpacity(0.3),
+                              Colors.black.withValues(alpha: 0.3),
                               Colors.transparent,
                               Colors.white,
                             ],
@@ -431,7 +433,9 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               final authState = context.read<AuthCubit>().state;
               final isAuthenticated = authState is Authenticated;
               final isFavorite =
-                  isAuthenticated && state.favoriteIds.contains(widget.eventId);
+                  isAuthenticated &&
+                  state is FavoritesLoaded &&
+                  state.favoriteIds.contains(widget.eventUiModel.event.id);
 
               return _buildFloatingButton(
                 icon: isFavorite ? Icons.favorite : Icons.favorite_border,
@@ -451,7 +455,9 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                       );
                     return;
                   }
-                  context.read<FavoritesCubit>().toggleFavorite(widget.eventId);
+                  context.read<FavoritesCubit>().toggleFavorite(
+                    widget.eventUiModel.event.id,
+                  );
                 },
               );
             },

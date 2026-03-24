@@ -45,10 +45,11 @@ import 'package:local_happens/features/events/presentation/cubit/events_cubit.da
 import 'package:local_happens/features/favorites/data/repositories/favorite_repository_impl.dart';
 import 'package:local_happens/features/favorites/domain/repositories/favorite_repository.dart';
 import 'package:local_happens/features/favorites/domain/usecases/add_favorite.dart';
-import 'package:local_happens/features/favorites/domain/usecases/get_favorites.dart';
+import 'package:local_happens/features/favorites/domain/usecases/get_favorites_stream.dart';
 import 'package:local_happens/features/favorites/domain/usecases/is_favorite.dart';
 import 'package:local_happens/features/favorites/domain/usecases/remove_favorite.dart';
 import 'package:local_happens/features/favorites/presentation/cubit/favorites_cubit.dart';
+import 'package:local_happens/features/favorites/data/datasources/favorites_remote_datasource.dart';
 import 'package:local_happens/features/profile/presentation/cubit/profile_cubit.dart';
 
 final sl = GetIt.instance; // Service Locator
@@ -176,18 +177,23 @@ Future<void> init() async {
   // Features - Favorites
   sl.registerFactory(
     () => FavoritesCubit(
-      getFavoritesUseCase: sl(),
+      getFavoritesStreamUseCase: sl(),
       addFavoriteUseCase: sl(),
       removeFavoriteUseCase: sl(),
       isFavoriteUseCase: sl(),
+      getUsersByIdsUseCase: sl(),
+      getCitiesByIdsUseCase: sl(),
     ),
   );
-  sl.registerLazySingleton(() => GetFavorites(sl()));
+  sl.registerLazySingleton(() => GetFavoritesStream(sl()));
   sl.registerLazySingleton(() => AddFavorite(sl()));
   sl.registerLazySingleton(() => RemoveFavorite(sl()));
   sl.registerLazySingleton(() => IsFavorite(sl()));
+  sl.registerLazySingleton<FavoritesRemoteDatasource>(
+    () => FavoritesRemoteDatasourceImpl(firestore: sl(), firebaseAuth: sl()),
+  );
   sl.registerLazySingleton<FavoriteRepository>(
-    () => FavoriteRepositoryImpl(firestore: sl(), firebaseAuth: sl()),
+    () => FavoriteRepositoryImpl(remoteDatasource: sl()),
   );
 
   // Features - Profile
