@@ -110,8 +110,8 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
 
   String _formatDate(DateTime? date) {
     if (date == null) return 'Оберіть дату';
-    return '${date.day.toString().padLeft(2, '0')}.' 
-        '${date.month.toString().padLeft(2, '0')}.' 
+    return '${date.day.toString().padLeft(2, '0')}.'
+        '${date.month.toString().padLeft(2, '0')}.'
         '${date.year}';
   }
 
@@ -120,20 +120,16 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
 
   BoxDecoration _chipDecoration(bool isSelected) {
     return BoxDecoration(
-      color: isSelected 
-          ? AppColors.accent.withOpacity(0.1) 
+      color: isSelected
+          ? AppColors.accent.withOpacity(0.1)
           : AppColors.secondaryBackground,
       borderRadius: BorderRadius.circular(100),
       border: Border.all(
-        color: isSelected 
-            ? AppColors.accent.withOpacity(0.2) 
+        color: isSelected
+            ? AppColors.accent.withOpacity(0.2)
             : Colors.transparent,
       ),
     );
-  }
-
-  TextStyle _chipTextStyle(bool isSelected) {
-    return AppTextStyles.primary;
   }
 
   Widget _buildChip({
@@ -145,14 +141,14 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 7),
         decoration: _chipDecoration(isSelected),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
               Icon(icon, size: 14, color: AppColors.foreground),
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
             ],
             Text(label, style: AppTextStyles.primary),
           ],
@@ -193,7 +189,9 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                   _formatDate(value),
                   style: value == null
                       ? AppTextStyles.section
-                      : AppTextStyles.value.copyWith(color: AppColors.foreground),
+                      : AppTextStyles.value.copyWith(
+                          color: AppColors.foreground,
+                        ),
                 ),
               ],
             ),
@@ -206,6 +204,25 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
   @override
   Widget build(BuildContext context) {
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+
+    final sortedCities = [
+      'Київ',
+      'Харків',
+      'Одеса',
+      'Львів',
+      'Вінниця',
+      'Дніпро',
+      'Кривий ріг',
+      'Запоріжжя',
+      'Миколаїв',
+      'Херсон',
+    ];
+
+    final autocompleteCities = {
+      ...sortedCities.map((city) => city.trim()),
+      ...widget.availableCities.map((city) => city.trim()),
+    }.where((city) => city.isNotEmpty).toList()
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
     return Padding(
       padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomInset),
@@ -227,12 +244,9 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                 ),
               ],
             ),
-
             const SizedBox(height: 13),
-
             const Text('Коли', style: AppTextStyles.section),
             const SizedBox(height: 8),
-
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -245,31 +259,45 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                   isSelected: isSelected,
                   onTap: () {
                     setState(() {
-                      _localFilters = _localFilters.copyWith(
-                        selectedTimeFilter: option['value'],
-                        clearDateFrom: true,
-                        clearDateTo: true,
-                      );
+                      final isAlreadySelected =
+                          _localFilters.selectedTimeFilter == option['value'];
+
+                      _localFilters = isAlreadySelected
+                          ? _localFilters.copyWith(
+                              selectedTimeFilter: EventsTimeFilter.none,
+                              clearDateFrom: true,
+                              clearDateTo: true,
+                            )
+                          : _localFilters.copyWith(
+                              selectedTimeFilter: option['value'],
+                              clearDateFrom: true,
+                              clearDateTo: true,
+                            );
                     });
                   },
                 );
               }).toList(),
             ),
-
             const SizedBox(height: 8),
-
             _buildChip(
               label: 'Вибрати дати',
               isSelected: _isCustomDateSelected,
               onTap: () {
                 setState(() {
-                  _localFilters = _localFilters.copyWith(
-                    selectedTimeFilter: EventsTimeFilter.custom,
-                  );
+                  if (_isCustomDateSelected) {
+                    _localFilters = _localFilters.copyWith(
+                      selectedTimeFilter: EventsTimeFilter.none,
+                      clearDateFrom: true,
+                      clearDateTo: true,
+                    );
+                  } else {
+                    _localFilters = _localFilters.copyWith(
+                      selectedTimeFilter: EventsTimeFilter.custom,
+                    );
+                  }
                 });
               },
             ),
-
             if (_isCustomDateSelected) ...[
               const SizedBox(height: 24),
               _buildDateField(
@@ -284,16 +312,13 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                 onTap: () => _pickDate(isFrom: false),
               ),
             ],
-
             const SizedBox(height: 24),
-
             const Text('Місто', style: AppTextStyles.section),
             const SizedBox(height: 8),
-
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: widget.availableCities.map((city) {
+              children: sortedCities.map((city) {
                 final isSelected = _localFilters.selectedCity == city;
 
                 return _buildChip(
@@ -302,69 +327,105 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                   icon: Icons.location_on_outlined,
                   onTap: () {
                     setState(() {
-                      _isCustomCityMode = false;
-                      _localFilters = _localFilters.copyWith(
-                        selectedCity: city,
-                        clearSelectedCustomCity: true,
-                      );
-                      _customCityController.clear();
+                      final isAlreadySelected =
+                          _localFilters.selectedCity == city;
+
+                      if (isAlreadySelected) {
+                        _localFilters = _localFilters.copyWith(
+                          clearSelectedCity: true,
+                        );
+                      } else {
+                        _isCustomCityMode = false;
+                        _localFilters = _localFilters.copyWith(
+                          selectedCity: city,
+                          clearSelectedCustomCity: true,
+                        );
+                        _customCityController.clear();
+                      }
                     });
                   },
                 );
               }).toList(),
             ),
-
             const SizedBox(height: 8),
-
             _buildChip(
               label: 'Вибрати інше місто',
               isSelected: _isCustomCityMode,
               onTap: () {
                 setState(() {
-                  _isCustomCityMode = true;
-                  _localFilters = _localFilters.copyWith(
-                    clearSelectedCity: true,
-                  );
+                  if (_isCustomCityMode) {
+                    _isCustomCityMode = false;
+                    _customCityController.clear();
+                    _localFilters = _localFilters.copyWith(
+                      clearSelectedCustomCity: true,
+                    );
+                  } else {
+                    _isCustomCityMode = true;
+                    _localFilters = _localFilters.copyWith(
+                      clearSelectedCity: true,
+                    );
+                  }
                 });
               },
             ),
-
             if (_isCustomCityMode) ...[
               const SizedBox(height: 24),
-              TextField(
-                style: AppTextStyles.value.copyWith(color: AppColors.foreground),
-                controller: _customCityController,
-                onChanged: (value) {
+              Autocomplete<String>(
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  final query = textEditingValue.text.trim().toLowerCase();
+
+                  if (query.isEmpty) {
+                    return const Iterable<String>.empty();
+                  }
+
+                  return autocompleteCities.where(
+                    (city) => city.toLowerCase().contains(query),
+                  );
+                },
+                onSelected: (city) {
                   setState(() {
                     _localFilters = _localFilters.copyWith(
-                      selectedCustomCity: value.trim(),
+                      selectedCustomCity: city,
                       clearSelectedCity: true,
                     );
                   });
                 },
-                decoration: InputDecoration(
-                  hintText: 'Оберіть місто',
-                  hintStyle: AppTextStyles.section,
-                  filled: true,
-                  fillColor: AppColors.secondaryBackground,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 16,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                  suffixIcon: const Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: AppColors.mutedForeground,
-                  ),
-                ),
+                fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                  return TextField(
+                    style: AppTextStyles.value.copyWith(color: AppColors.foreground),
+                    controller: controller,
+                    focusNode: focusNode,
+                    onChanged: (value) {
+                      setState(() {
+                        _localFilters = _localFilters.copyWith(
+                          selectedCustomCity: value.trim(),
+                          clearSelectedCity: true,
+                        );
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Оберіть місто',
+                      hintStyle: AppTextStyles.section,
+                      filled: true,
+                      fillColor: AppColors.secondaryBackground,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 16,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                      suffixIcon: const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: AppColors.mutedForeground,
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
-
             const SizedBox(height: 24),
-
             Row(
               children: [
                 Expanded(
@@ -408,7 +469,9 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                     ),
                     child: Text(
                       'Застосувати',
-                      style: AppTextStyles.primary.copyWith(color: AppColors.background),
+                      style: AppTextStyles.primary.copyWith(
+                        color: AppColors.background,
+                      ),
                     ),
                   ),
                 ),
