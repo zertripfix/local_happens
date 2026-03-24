@@ -189,7 +189,9 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                   _formatDate(value),
                   style: value == null
                       ? AppTextStyles.section
-                      : AppTextStyles.value.copyWith(color: AppColors.foreground),
+                      : AppTextStyles.value.copyWith(
+                          color: AppColors.foreground,
+                        ),
                 ),
               ],
             ),
@@ -215,6 +217,12 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
       'Миколаїв',
       'Херсон',
     ];
+
+    final autocompleteCities = {
+      ...sortedCities.map((city) => city.trim()),
+      ...widget.availableCities.map((city) => city.trim()),
+    }.where((city) => city.isNotEmpty).toList()
+      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
     return Padding(
       padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomInset),
@@ -362,35 +370,59 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
             ),
             if (_isCustomCityMode) ...[
               const SizedBox(height: 24),
-              TextField(
-                style: AppTextStyles.value.copyWith(color: AppColors.foreground),
-                controller: _customCityController,
-                onChanged: (value) {
+              Autocomplete<String>(
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  final query = textEditingValue.text.trim().toLowerCase();
+
+                  if (query.isEmpty) {
+                    return const Iterable<String>.empty();
+                  }
+
+                  return autocompleteCities.where(
+                    (city) => city.toLowerCase().contains(query),
+                  );
+                },
+                onSelected: (city) {
                   setState(() {
                     _localFilters = _localFilters.copyWith(
-                      selectedCustomCity: value.trim(),
+                      selectedCustomCity: city,
                       clearSelectedCity: true,
                     );
                   });
                 },
-                decoration: InputDecoration(
-                  hintText: 'Оберіть місто',
-                  hintStyle: AppTextStyles.section,
-                  filled: true,
-                  fillColor: AppColors.secondaryBackground,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 16,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: BorderSide.none,
-                  ),
-                  suffixIcon: const Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    color: AppColors.mutedForeground,
-                  ),
-                ),
+                fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                  return TextField(
+                    style: AppTextStyles.value.copyWith(color: AppColors.foreground),
+                    controller: controller,
+                    focusNode: focusNode,
+                    onChanged: (value) {
+                      setState(() {
+                        _localFilters = _localFilters.copyWith(
+                          selectedCustomCity: value.trim(),
+                          clearSelectedCity: true,
+                        );
+                      });
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Оберіть місто',
+                      hintStyle: AppTextStyles.section,
+                      filled: true,
+                      fillColor: AppColors.secondaryBackground,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 16,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide.none,
+                      ),
+                      suffixIcon: const Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: AppColors.mutedForeground,
+                      ),
+                    ),
+                  );
+                },
               ),
             ],
             const SizedBox(height: 24),
@@ -437,7 +469,9 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                     ),
                     child: Text(
                       'Застосувати',
-                      style: AppTextStyles.primary.copyWith(color: AppColors.background),
+                      style: AppTextStyles.primary.copyWith(
+                        color: AppColors.background,
+                      ),
                     ),
                   ),
                 ),
