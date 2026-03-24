@@ -28,8 +28,11 @@ class _EventsPageState extends State<EventsPage> {
     {'name': 'Спорт', 'icon': Icons.bolt, 'color': Colors.amber},
     {'name': 'Їжа', 'icon': Icons.restaurant, 'color': Colors.red},
     {'name': 'Мистецтво', 'icon': Icons.palette, 'color': Colors.purple},
-    {'name': 'Освіта', 'icon': Icons.school, 'color': Colors.green},
     {'name': 'Технології', 'icon': Icons.computer, 'color': Colors.grey},
+    {'name': 'Освіта', 'icon': Icons.school, 'color': Colors.green},
+    {'name': 'Розваги', 'icon': Icons.celebration, 'color': Colors.pink},
+    {'name': 'Бізнес', 'icon': Icons.business, 'color': Colors.indigo},
+    {'name': 'Інше', 'icon': Icons.category, 'color': Colors.brown},
   ];
 
   @override
