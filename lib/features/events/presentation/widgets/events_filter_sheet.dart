@@ -236,12 +236,9 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                 ),
               ],
             ),
-
             const SizedBox(height: 13),
-
             const Text('Коли', style: AppTextStyles.section),
             const SizedBox(height: 8),
-
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -254,31 +251,45 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                   isSelected: isSelected,
                   onTap: () {
                     setState(() {
-                      _localFilters = _localFilters.copyWith(
-                        selectedTimeFilter: option['value'],
-                        clearDateFrom: true,
-                        clearDateTo: true,
-                      );
+                      final isAlreadySelected =
+                          _localFilters.selectedTimeFilter == option['value'];
+
+                      _localFilters = isAlreadySelected
+                          ? _localFilters.copyWith(
+                              selectedTimeFilter: EventsTimeFilter.none,
+                              clearDateFrom: true,
+                              clearDateTo: true,
+                            )
+                          : _localFilters.copyWith(
+                              selectedTimeFilter: option['value'],
+                              clearDateFrom: true,
+                              clearDateTo: true,
+                            );
                     });
                   },
                 );
               }).toList(),
             ),
-
             const SizedBox(height: 8),
-
             _buildChip(
               label: 'Вибрати дати',
               isSelected: _isCustomDateSelected,
               onTap: () {
                 setState(() {
-                  _localFilters = _localFilters.copyWith(
-                    selectedTimeFilter: EventsTimeFilter.custom,
-                  );
+                  if (_isCustomDateSelected) {
+                    _localFilters = _localFilters.copyWith(
+                      selectedTimeFilter: EventsTimeFilter.none,
+                      clearDateFrom: true,
+                      clearDateTo: true,
+                    );
+                  } else {
+                    _localFilters = _localFilters.copyWith(
+                      selectedTimeFilter: EventsTimeFilter.custom,
+                    );
+                  }
                 });
               },
             ),
-
             if (_isCustomDateSelected) ...[
               const SizedBox(height: 24),
               _buildDateField(
@@ -293,12 +304,9 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                 onTap: () => _pickDate(isFrom: false),
               ),
             ],
-
             const SizedBox(height: 24),
-
             const Text('Місто', style: AppTextStyles.section),
             const SizedBox(height: 8),
-
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -311,33 +319,47 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                   icon: Icons.location_on_outlined,
                   onTap: () {
                     setState(() {
-                      _isCustomCityMode = false;
-                      _localFilters = _localFilters.copyWith(
-                        selectedCity: city,
-                        clearSelectedCustomCity: true,
-                      );
-                      _customCityController.clear();
+                      final isAlreadySelected =
+                          _localFilters.selectedCity == city;
+
+                      if (isAlreadySelected) {
+                        _localFilters = _localFilters.copyWith(
+                          clearSelectedCity: true,
+                        );
+                      } else {
+                        _isCustomCityMode = false;
+                        _localFilters = _localFilters.copyWith(
+                          selectedCity: city,
+                          clearSelectedCustomCity: true,
+                        );
+                        _customCityController.clear();
+                      }
                     });
                   },
                 );
               }).toList(),
             ),
-
             const SizedBox(height: 8),
-
             _buildChip(
               label: 'Вибрати інше місто',
               isSelected: _isCustomCityMode,
               onTap: () {
                 setState(() {
-                  _isCustomCityMode = true;
-                  _localFilters = _localFilters.copyWith(
-                    clearSelectedCity: true,
-                  );
+                  if (_isCustomCityMode) {
+                    _isCustomCityMode = false;
+                    _customCityController.clear();
+                    _localFilters = _localFilters.copyWith(
+                      clearSelectedCustomCity: true,
+                    );
+                  } else {
+                    _isCustomCityMode = true;
+                    _localFilters = _localFilters.copyWith(
+                      clearSelectedCity: true,
+                    );
+                  }
                 });
               },
             ),
-
             if (_isCustomCityMode) ...[
               const SizedBox(height: 24),
               TextField(
@@ -371,9 +393,7 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                 ),
               ),
             ],
-
             const SizedBox(height: 24),
-
             Row(
               children: [
                 Expanded(
