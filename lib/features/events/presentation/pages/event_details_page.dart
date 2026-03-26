@@ -21,8 +21,13 @@ import 'package:local_happens/injection_container.dart';
 
 class EventDetailsPage extends StatefulWidget {
   final EventUiModel eventUiModel;
+  final bool isFromAdminEventCard;
 
-  const EventDetailsPage({super.key, required this.eventUiModel});
+  const EventDetailsPage({
+    super.key,
+    required this.eventUiModel,
+    this.isFromAdminEventCard = false,
+  });
 
   @override
   State<EventDetailsPage> createState() => _EventDetailsPageState();
@@ -63,9 +68,10 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     final event = uiModel.event;
     final timeFormat = DateFormat("HH:mm");
     final authState = context.read<AuthCubit>().state;
-    final isAdmin = authState is Authenticated
-        ? authState.user.role == UserRole.admin
-        : false;
+    final isAdmin =
+        authState is Authenticated && authState.user.role == UserRole.admin;
+    final showAdminActions = isAdmin && widget.isFromAdminEventCard;
+    final showUserActions = !showAdminActions;
 
     return Stack(
       children: [
@@ -85,7 +91,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                       placeholder: (context, url) =>
                           Container(color: Colors.grey[200]),
                       errorWidget: (context, url, error) =>
-                        const Icon(Icons.error),
+                          const Icon(Icons.error),
                     ),
                     // Gradient overlay
                     Positioned.fill(
@@ -118,20 +124,25 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        _buildTag(
-                          icon: Icons.music_note,
-                          label: event.category,
+                        _buildTagWithCategory(
+                          category: event.category,
                           color: Colors.red[50]!,
                           textColor: Colors.red[700]!,
                         ),
-                        const SizedBox(width: 12),
-                        _buildTag(
-                          label: '${event.attendeeIds.length} планують прийти',
-                          color: Colors.grey[100]!,
-                          textColor: Colors.black87,
-                        ),
+                        if (showUserActions) ...[
+                          const SizedBox(width: 12),
+
+                          const SizedBox(width: 12),
+                          _buildTag(
+                            label:
+                                '${event.attendeeIds.length} планують прийти',
+                            color: Colors.grey[100]!,
+                            textColor: Colors.black87,
+                          ),
+                        ],
                       ],
                     ),
+
                     const SizedBox(height: 16),
 
                     Text(
@@ -221,19 +232,11 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                 }
                               }
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF4A574D),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.open_in_new, size: 20),
-                                SizedBox(width: 8),
+                                Icon(Icons.open_in_new, size: 16),
+                                SizedBox(width: 10),
                                 Text(
                                   'Перейти на сайт',
                                   style: TextStyle(fontSize: 16),
@@ -244,8 +247,8 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                         ),
                         const SizedBox(width: 12),
 
-                        Expanded(
-                          child: BlocBuilder<EventDetailsCubit, EventDetailsState>(
+                        if (showUserActions)
+                          BlocBuilder<EventDetailsCubit, EventDetailsState>(
                             builder: (context, state) {
                               final authState = context.read<AuthCubit>().state;
 
@@ -270,38 +273,29 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                                 currentUserId!,
                                               );
 
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                isAttending
-                                                    ? 'Ви більше не плануєте йти'
-                                                    : 'Гарно провести час!',
+                                          ScaffoldMessenger.of(context)
+                                            ..clearSnackBars()
+                                            ..showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  isAttending
+                                                      ? 'Ви більше не плануєте йти'
+                                                      : 'Гарно провести час!',
+                                                ),
                                               ),
-                                            ),
-                                          );
+                                            );
                                         }
                                       : () {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Спочатку увійдіть в акаунт',
+                                          ScaffoldMessenger.of(context)
+                                            ..clearSnackBars()
+                                            ..showSnackBar(
+                                              const SnackBar(
+                                                content: Text(
+                                                  'Спочатку увійдіть в акаунт',
+                                                ),
                                               ),
-                                            ),
-                                          );
+                                            );
                                         },
-                                  style: OutlinedButton.styleFrom(
-                                    side: BorderSide(color: Colors.grey[300]!),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
@@ -309,16 +303,12 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                         isAttending
                                             ? Icons.person_remove_outlined
                                             : Icons.person_add_outlined,
-                                        size: 20,
+                                        size: 16,
                                         color: Colors.black87,
                                       ),
-                                      const SizedBox(width: 4),
+                                      const SizedBox(width: 10),
                                       Text(
                                         isAttending ? 'Передумав' : 'Я буду!',
-                                        style: const TextStyle(
-                                          color: Colors.black87,
-                                          fontSize: 16,
-                                        ),
                                       ),
                                     ],
                                   ),
@@ -328,10 +318,9 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                               return const SizedBox.shrink();
                             },
                           ),
-                        ),
                       ],
                     ),
-                    if (isAdmin) ...[
+                    if (showAdminActions) ...[
                       SizedBox(height: 24),
                       Row(
                         children: [
@@ -344,16 +333,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                 );
                                 context.pop();
                               },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF4A574D),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
                               child: const Text(
                                 'Схвалити',
                                 style: TextStyle(fontSize: 16),
@@ -370,15 +349,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                                 );
                                 context.pop();
                               },
-                              style: OutlinedButton.styleFrom(
-                                side: BorderSide(color: Colors.grey[300]!),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
                               child: const Text(
                                 'Відхилити',
                                 style: TextStyle(
@@ -410,59 +380,60 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         ),
 
         // Favorite button
-        Positioned(
-          top: MediaQuery.of(context).padding.top + 10,
-          right: 20,
-          child: BlocConsumer<FavoritesCubit, FavoritesState>(
-            listener: (context, state) {
-              if (state is FavoritesError) {
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text(state.message)));
-              }
-            },
-            builder: (context, state) {
-              if (state is FavoritesLoading) {
-                return _buildFloatingButton(
-                  icon: Icons.favorite_border,
-                  iconColor: Colors.grey,
-                  onPressed: () {}, // кнопка неактивна
-                );
-              }
-
-              final authState = context.read<AuthCubit>().state;
-              final isAuthenticated = authState is Authenticated;
-              final isFavorite =
-                  isAuthenticated &&
-                  state is FavoritesLoaded &&
-                  state.favoriteIds.contains(widget.eventUiModel.event.id);
-
-              return _buildFloatingButton(
-                icon: isFavorite ? Icons.favorite : Icons.favorite_border,
-                iconColor: isFavorite ? Colors.redAccent : Colors.black87,
-                onPressed: () {
-                  final user = FirebaseAuth.instance.currentUser;
-                  // через if (!isAuthenticated)... не працює після логауту
-                  if (user == null) {
-                    ScaffoldMessenger.of(context)
-                      ..clearSnackBars()
-                      ..showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Увійдіть, щоб мати можливість додавати в "Обране"',
-                          ),
-                        ),
-                      );
-                    return;
-                  }
-                  context.read<FavoritesCubit>().toggleFavorite(
-                    widget.eventUiModel.event.id,
+        if (showUserActions)
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            right: 20,
+            child: BlocConsumer<FavoritesCubit, FavoritesState>(
+              listener: (context, state) {
+                if (state is FavoritesError) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text(state.message)));
+                }
+              },
+              builder: (context, state) {
+                if (state is FavoritesLoading) {
+                  return _buildFloatingButton(
+                    icon: Icons.favorite_border,
+                    iconColor: Colors.grey,
+                    onPressed: () {}, // кнопка неактивна
                   );
-                },
-              );
-            },
+                }
+
+                final authState = context.read<AuthCubit>().state;
+                final isAuthenticated = authState is Authenticated;
+                final isFavorite =
+                    isAuthenticated &&
+                    state is FavoritesLoaded &&
+                    state.favoriteIds.contains(widget.eventUiModel.event.id);
+
+                return _buildFloatingButton(
+                  icon: isFavorite ? Icons.favorite : Icons.favorite_border,
+                  iconColor: isFavorite ? Colors.redAccent : Colors.black87,
+                  onPressed: () {
+                    final user = FirebaseAuth.instance.currentUser;
+                    // через if (!isAuthenticated)... не працює після логауту
+                    if (user == null) {
+                      ScaffoldMessenger.of(context)
+                        ..clearSnackBars()
+                        ..showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Увійдіть, щоб мати можливість додавати в "Обране"',
+                            ),
+                          ),
+                        );
+                      return;
+                    }
+                    context.read<FavoritesCubit>().toggleFavorite(
+                      widget.eventUiModel.event.id,
+                    );
+                  },
+                );
+              },
+            ),
           ),
-        ),
       ],
     );
   }
@@ -497,6 +468,38 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         ],
       ),
     );
+  }
+
+  Widget _buildTagWithCategory({
+    required String category,
+    required Color color,
+    required Color textColor,
+  }) {
+    return _buildTag(
+      icon: _getCategoryIcon(category),
+      label: category,
+      color: color,
+      textColor: textColor,
+    );
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'музика':
+        return Icons.music_note;
+      case 'спорт':
+        return Icons.bolt;
+      case 'їжа':
+        return Icons.restaurant;
+      case 'мистецтво':
+        return Icons.palette;
+      case 'освіта':
+        return Icons.school;
+      case 'технології':
+        return Icons.computer;
+      default:
+        return Icons.star;
+    }
   }
 
   Widget _buildInfoCard({

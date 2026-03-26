@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:local_happens/features/admin/presentation/cubit/admin_cubit.dart';
 import 'package:local_happens/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:local_happens/firebase_options.dart';
+import 'package:local_happens/ui/theme/theme_data.dart';
 import 'injection_container.dart' as di;
 import 'router/app_router.dart';
 import 'features/auth/presentation/cubit/auth_cubit.dart';
@@ -13,7 +14,6 @@ import 'features/favorites/presentation/cubit/favorites_cubit.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_maps_flutter_android/google_maps_flutter_android.dart';
 import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,18 +61,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp.router(
         title: 'Local Happens',
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          textTheme: GoogleFonts.interTextTheme(),
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Color(0xFF404F43),
-            primary: Color(0xFF404F43),
-            onSurfaceVariant: Color(0xFF79867D),
-            surface: Color(0xFFFBFAF9),
-            surfaceContainerHighest: Color(0xFFF2F0ED),
-            outline: Color(0xFFE8E6E3),
-          ),
-          useMaterial3: true,
-        ),
+        theme: buildAppTheme(),
         routerConfig: AppRouter.router,
       ),
     );

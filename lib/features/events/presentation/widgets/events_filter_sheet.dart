@@ -43,8 +43,9 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
     _customCityController = TextEditingController(
       text: widget.initialFilters.selectedCustomCity ?? '',
     );
-    _isCustomCityMode =
-        (widget.initialFilters.selectedCustomCity ?? '').trim().isNotEmpty;
+    _isCustomCityMode = (widget.initialFilters.selectedCustomCity ?? '')
+        .trim()
+        .isNotEmpty;
   }
 
   @override
@@ -53,9 +54,7 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
     super.dispose();
   }
 
-  Future<void> _pickDate({
-    required bool isFrom,
-  }) async {
+  Future<void> _pickDate({required bool isFrom}) async {
     final now = DateTime.now();
     final firstDate = DateTime(2024);
     final lastDate = DateTime(2100);
@@ -90,7 +89,8 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
         _localFilters = _localFilters.copyWith(
           selectedTimeFilter: EventsTimeFilter.custom,
           dateFrom: pickedDate,
-          dateTo: _localFilters.dateTo != null &&
+          dateTo:
+              _localFilters.dateTo != null &&
                   _localFilters.dateTo!.isBefore(pickedDate)
               ? pickedDate
               : _localFilters.dateTo,
@@ -98,7 +98,8 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
       } else {
         _localFilters = _localFilters.copyWith(
           selectedTimeFilter: EventsTimeFilter.custom,
-          dateFrom: _localFilters.dateFrom != null &&
+          dateFrom:
+              _localFilters.dateFrom != null &&
                   _localFilters.dateFrom!.isAfter(pickedDate)
               ? pickedDate
               : _localFilters.dateFrom,
@@ -218,11 +219,12 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
       'Херсон',
     ];
 
-    final autocompleteCities = {
-      ...sortedCities.map((city) => city.trim()),
-      ...widget.availableCities.map((city) => city.trim()),
-    }.where((city) => city.isNotEmpty).toList()
-      ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    final autocompleteCities =
+        {
+            ...sortedCities.map((city) => city.trim()),
+            ...widget.availableCities.map((city) => city.trim()),
+          }.where((city) => city.isNotEmpty).toList()
+          ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
     return Padding(
       padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomInset),
@@ -390,39 +392,42 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                     );
                   });
                 },
-                fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
-                  return TextField(
-                    style: AppTextStyles.value.copyWith(color: AppColors.foreground),
-                    controller: controller,
-                    focusNode: focusNode,
-                    onChanged: (value) {
-                      setState(() {
-                        _localFilters = _localFilters.copyWith(
-                          selectedCustomCity: value.trim(),
-                          clearSelectedCity: true,
-                        );
-                      });
+                fieldViewBuilder:
+                    (context, controller, focusNode, onFieldSubmitted) {
+                      return TextField(
+                        style: AppTextStyles.value.copyWith(
+                          color: AppColors.foreground,
+                        ),
+                        controller: controller,
+                        focusNode: focusNode,
+                        onChanged: (value) {
+                          setState(() {
+                            _localFilters = _localFilters.copyWith(
+                              selectedCustomCity: value.trim(),
+                              clearSelectedCity: true,
+                            );
+                          });
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Оберіть місто',
+                          hintStyle: AppTextStyles.section,
+                          filled: true,
+                          fillColor: AppColors.secondaryBackground,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 16,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(14),
+                            borderSide: BorderSide.none,
+                          ),
+                          suffixIcon: const Icon(
+                            Icons.keyboard_arrow_down_rounded,
+                            color: AppColors.mutedForeground,
+                          ),
+                        ),
+                      );
                     },
-                    decoration: InputDecoration(
-                      hintText: 'Оберіть місто',
-                      hintStyle: AppTextStyles.section,
-                      filled: true,
-                      fillColor: AppColors.secondaryBackground,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 16,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide.none,
-                      ),
-                      suffixIcon: const Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        color: AppColors.mutedForeground,
-                      ),
-                    ),
-                  );
-                },
               ),
             ],
             const SizedBox(height: 24),
@@ -440,15 +445,6 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                     },
                     icon: const Icon(Icons.refresh, size: 16),
                     label: Text('Скинути', style: AppTextStyles.primary),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.foreground,
-                      side: const BorderSide(color: AppColors.border),
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -458,15 +454,6 @@ class _EventsFilterSheetState extends State<EventsFilterSheet> {
                     onPressed: () {
                       widget.onApply(_localFilters);
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
                     child: Text(
                       'Застосувати',
                       style: AppTextStyles.primary.copyWith(

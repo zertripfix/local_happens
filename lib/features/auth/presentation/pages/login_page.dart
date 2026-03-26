@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:local_happens/core/constants/app_text_styles.dart';
 import '../../../../core/utils/validators.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
@@ -36,7 +37,12 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      resizeToAvoidBottomInset: true,
+      backgroundColor: const Color(0xFFFBFAF9),
+      appBar: AppBar(
+        title: const Text('Вхід'),
+        backgroundColor: const Color(0xFFFBFAF9),
+      ),
       body: BlocConsumer<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is Authenticated) {
@@ -50,63 +56,106 @@ class _LoginPageState extends State<LoginPage> {
           }
         },
         builder: (context, state) {
-          return Padding(
-            padding: const EdgeInsets.all(16),
-            child: Form(
-              key: _formKey,
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  TextFormField(
-                    controller: emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    textInputAction: TextInputAction.next,
-                    decoration: const InputDecoration(labelText: 'Email'),
-                    validator: Validators.validateEmail,
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  TextFormField(
-                    controller: passwordController,
-                    keyboardType: TextInputType.text,
-                    textInputAction: TextInputAction.go,
-                    obscureText: true,
-                    decoration: const InputDecoration(labelText: 'Password'),
-                    validator: Validators.validatePassword,
-                    onFieldSubmitted: (_) {
-                      _submitForm();
-                    },
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  ElevatedButton(
-                    onPressed: _submitForm,
-                    child: const Text('Login'),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  ElevatedButton(
-                    onPressed: () {
-                      context.read<AuthCubit>().signInWithGoogle();
-                    },
-                    child: const Text('Login with Google'),
-                  ),
-
-                  TextButton(
-                    onPressed: () {
-                      context.push('/register');
-                    },
-                    child: const Text('Create account'),
-                  ),
-
-                  if (state is AuthLoading)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 20),
-                      child: CircularProgressIndicator(),
+                  // Логотип
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF2F0ED),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF79867D),
+                          offset: const Offset(0, 4),
+                          blurRadius: 10,
+                        ),
+                      ],
                     ),
+                    child: Center(
+                      child: SizedBox(
+                        width: 64,
+                        height: 64,
+                        child: Image.asset('lib/assets/images/logo.png'),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  const Text('LocalHappens', style: AppTextStyles.headline),
+                  const SizedBox(height: 2),
+                  const Text(
+                    'Знаходь цікаве поруч',
+                    style: AppTextStyles.value,
+                  ),
+
+                  const SizedBox(height: 42),
+
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextFormField(
+                          controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          textInputAction: TextInputAction.next,
+                          decoration: const InputDecoration(labelText: 'Email'),
+                          validator: Validators.validateEmail,
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        TextFormField(
+                          controller: passwordController,
+                          keyboardType: TextInputType.text,
+                          textInputAction: TextInputAction.go,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Пароль',
+                          ),
+                          validator: Validators.validatePassword,
+                          onFieldSubmitted: (_) {
+                            _submitForm();
+                          },
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        ElevatedButton(
+                          onPressed: _submitForm,
+                          child: const Text('Увійти'),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        ElevatedButton(
+                          onPressed: () {
+                            context.read<AuthCubit>().signInWithGoogle();
+                          },
+                          child: const Text('Ввійти за допомогою Google'),
+                        ),
+
+                        TextButton(
+                          onPressed: () {
+                            context.push('/register');
+                          },
+                          child: const Text('Створити акаунт'),
+                        ),
+
+                        if (state is AuthLoading)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 20),
+                            child: CircularProgressIndicator(),
+                          ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

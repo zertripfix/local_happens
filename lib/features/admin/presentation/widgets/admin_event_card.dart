@@ -13,7 +13,10 @@ class AdminEventCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        context.push('/events/${eventModel.event.id}');
+        context.push(
+          '/events/${eventModel.event.id}',
+          extra: {'eventUiModel': eventModel, 'isFromAdminEventCard': true},
+        );
       },
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

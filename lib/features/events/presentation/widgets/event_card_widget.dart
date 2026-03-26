@@ -7,17 +7,24 @@ import 'package:local_happens/core/constants/app_text_styles.dart';
 import 'package:local_happens/features/events/presentation/models/event_ui_model.dart';
 
 class EventCard extends StatelessWidget {
-  const EventCard({
-    super.key,
-    required this.eventUiModel,
-  });
+  const EventCard({super.key, required this.eventUiModel});
 
   final EventUiModel eventUiModel;
 
   String _getMonthName(int month) {
     const months = [
-      'січ.', 'лют.', 'берез.', 'квіт.', 'трав.', 'черв.',
-      'лип.', 'серп.', 'вер.', 'жовт.', 'лист.', 'груд.'
+      'січ.',
+      'лют.',
+      'берез.',
+      'квіт.',
+      'трав.',
+      'черв.',
+      'лип.',
+      'серп.',
+      'вер.',
+      'жовт.',
+      'лист.',
+      'груд.',
     ];
     return months[month - 1];
   }
@@ -25,7 +32,8 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => context.push('/events/${eventUiModel.event.id}', extra: eventUiModel),
+      onTap: () =>
+          context.push('/events/${eventUiModel.event.id}', extra: eventUiModel),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -45,8 +53,8 @@ class EventCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-          AspectRatio(
-            aspectRatio: 160 / 178,
+            AspectRatio(
+              aspectRatio: 160 / 178,
               child: Stack(
                 children: [
                   ClipRRect(
@@ -60,9 +68,7 @@ class EventCard extends StatelessWidget {
                       fit: BoxFit.cover,
                       placeholder: (context, url) => Container(
                         color: AppColors.secondaryBackground,
-                        child: const Center(
-                          child: CircularProgressIndicator(),
-                        ),
+                        child: const Center(child: CircularProgressIndicator()),
                       ),
                       errorWidget: (context, url, error) => Container(
                         color: AppColors.secondaryBackground,
@@ -139,40 +145,43 @@ class EventCard extends StatelessWidget {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 38,
-                    child: Text(
-                      eventUiModel.event.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.titleSmall,
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 38,
+                      child: Text(
+                        eventUiModel.event.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.titleSmall,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on_outlined,
-                        size: 16,
-                        color: AppColors.mutedForeground,
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          eventUiModel.cityName,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTextStyles.bodySmall,
+                    const SizedBox(height: 8),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.location_on_outlined,
+                          size: 16,
+                          color: AppColors.mutedForeground,
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(
+                            eventUiModel.cityName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.bodySmall,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

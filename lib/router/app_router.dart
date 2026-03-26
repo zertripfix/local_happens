@@ -45,20 +45,35 @@ class AppRouter {
       GoRoute(
         path: '/events/:id',
         builder: (context, state) {
+          final extra = state.extra;
+
+          late final EventUiModel eventUiModel;
+          late final bool isFromAdminEventCard;
+
+          if (extra is Map<String, dynamic>) {
+            eventUiModel = extra['eventUiModel'] as EventUiModel;
+            isFromAdminEventCard =
+                extra['isFromAdminEventCard'] as bool? ?? false;
+          } else if (extra is EventUiModel) {
+            eventUiModel = extra;
+            isFromAdminEventCard = false;
+          } else {
+            return const Scaffold(
+              body: Center(child: Text('Подія не знайдена')),
+            );
+          }
+
           return MultiBlocProvider(
             providers: [
               BlocProvider<EventDetailsCubit>(
                 create: (_) => sl<EventDetailsCubit>(),
               ),
-              BlocProvider<FavoritesCubit>(
-                create: (_) => sl<FavoritesCubit>(),
-              ),
+              BlocProvider<FavoritesCubit>(create: (_) => sl<FavoritesCubit>()),
             ],
-            child: () {
-            
-              final eventUiModel = state.extra as EventUiModel;
-              return EventDetailsPage(eventUiModel: eventUiModel);
-            }(),
+            child: EventDetailsPage(
+              eventUiModel: eventUiModel,
+              isFromAdminEventCard: isFromAdminEventCard,
+            ),
           );
         },
       ),

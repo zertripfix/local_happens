@@ -49,3 +49,4 @@ flutter:
     - lib/assets/icons/home_icon.svg
     - lib/assets/icons/map_icon.svg
     - lib/assets/icons/profile_icon.svg
+    - lib/assets/images/logo.png
